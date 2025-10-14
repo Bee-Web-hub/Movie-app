@@ -8,7 +8,7 @@ export default function Home() {
   const [error, setError] = useState("");
   const [searchTerm, setSearchTerm] = useState("Batman"); // default search
 
-  const API_KEY = "YOUR_OMDB_API_KEY"; // replace with your OMDB key
+  const API_KEY = "dabce9ab"; // replace with your OMDB key
 
   useEffect(() => {
     fetchMovies(searchTerm);
@@ -24,6 +24,8 @@ export default function Home() {
       const data = await response.json();
       if (data.Response === "True") {
         setMovies(data.Search);
+     console.log(data.Search);
+
       } else {
         setError(data.Error);
         setMovies([]);
@@ -36,17 +38,25 @@ export default function Home() {
   };
 
   return (
-    <div className="p-6">
-      <h1 className="text-3xl font-bold text-center mb-6">
-        Discover Your Favorite Movies 🎬
-      </h1>
+  <div className="px-4 sm:px-8 py-10 max-w-7xl mx-auto">
+    <h1 className="text-3xl sm:text-4xl font-bold text-center text-gray-900 mb-8">
+      🎬 Discover Your Favorite Movies
+    </h1>
 
+    <div className="max-w-xl mx-auto mb-10">
       <SearchBar onSearch={(term) => setSearchTerm(term)} />
-
-      {loading && <p className="text-center mt-4">Loading movies...</p>}
-      {error && <p className="text-center text-red-500 mt-4">{error}</p>}
-
-      {!loading && !error && <MovieList movies={movies} />}
     </div>
-  );
+
+    {loading && <p className="text-center text-gray-600 mt-4">Loading movies...</p>}
+    {error && <p className="text-center text-red-500 mt-4">{error}</p>}
+
+    {!loading && !error && <MovieList movies={movies} />}
+
+    {movies.length === 0 && !loading && !error && (
+      <p className="text-center text-gray-500 mt-10">
+        Try searching for a movie above 🎥
+      </p>
+    )}
+  </div>
+);
 }

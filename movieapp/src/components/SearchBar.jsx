@@ -11,15 +11,21 @@ export default function SearchBar({ onSearch }) {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="flex items-center gap-2">
+    <form
+      onSubmit={handleSubmit}
+      className="flex justify-center mb-8"
+    >
       <input
         type="text"
         value={query}
         onChange={(e) => setQuery(e.target.value)}
-        placeholder="Search movies..."
-        className="p-2 border rounded flex-1"
+        placeholder="Search for a movie..."
+        className="w-full max-w-lg p-3 rounded-l-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500"
       />
-      <button type="submit" className="px-4 py-2 bg-blue-500 text-white rounded">
+      <button
+        type="submit"
+        className="bg-indigo-600 text-white px-6 py-3 rounded-r-lg hover:bg-indigo-700 transition duration-200"
+      >
         Search
       </button>
     </form>

@@ -6,17 +6,17 @@ export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
 
   return (
-    <nav className="bg-gray-900 text-white shadow-md">
-      <div className="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
-        {/* Logo */}
-        <Link to="/" className="font-bold text-xl text-yellow-400">
-          MovieApp
+    <nav className="bg-gray-900 text-white shadow-md sticky top-0 z-50">
+      <div className="max-w-7xl mx-auto px-6 py-3 flex items-center justify-between">
+        {/* LEFT SIDE - Logo */}
+        <Link to="/home" className="font-bold text-2xl text-yellow-400">
+          MovieHub
         </Link>
 
-        {/* Desktop Menu */}
-        <div className="hidden md:flex space-x-6">
+        {/* RIGHT SIDE (Desktop) */}
+        <div className="hidden md:flex items-center gap-6">
           <NavLink
-            to="/"
+            to="/home"
             className={({ isActive }) =>
               isActive
                 ? "text-yellow-400 font-semibold"
@@ -25,41 +25,24 @@ export default function Navbar() {
           >
             Home
           </NavLink>
-          <NavLink
-            to="/favorites"
-            className={({ isActive }) =>
-              isActive
-                ? "text-yellow-400 font-semibold"
-                : "hover:text-yellow-300 transition"
-            }
-          >
-            Favorites
-          </NavLink>
         </div>
 
-        {/* Mobile Menu Button */}
+        {/* MOBILE MENU BUTTON */}
         <button
           onClick={() => setMenuOpen(!menuOpen)}
-          className="md:hidden text-yellow-400 focus:outline-none"
+          className="md:hidden text-yellow-400 text-2xl focus:outline-none"
         >
           ☰
         </button>
       </div>
 
-      {/* Mobile Dropdown Menu */}
+      {/* MOBILE MENU DROPDOWN (Favorites Only) */}
       {menuOpen && (
-        <div className="md:hidden bg-gray-800 px-4 pb-3 space-y-2">
-          <Link
-            to="/"
-            className="block hover:text-yellow-300"
-            onClick={() => setMenuOpen(false)}
-          >
-            Home
-          </Link>
+        <div className="md:hidden bg-gray-800 px-6 pb-4 space-y-3">
           <Link
             to="/favorites"
-            className="block hover:text-yellow-300"
             onClick={() => setMenuOpen(false)}
+            className="block hover:text-yellow-300"
           >
             Favorites
           </Link>

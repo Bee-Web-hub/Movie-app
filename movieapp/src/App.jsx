@@ -7,6 +7,8 @@ import MovieDetails from "./pages/MovieDetails";
 import Favorites from "./pages/Favorites";
 import Navbar from "./components/Navbar";
 import SignIn from "./pages/SignIn";
+import Signup from "./pages/SignUp";
+import HelpCenter from "./pages/HelpCenter";
 
 export default function App() {
   const [darkMode, setDarkMode] = useState(() => {
@@ -17,6 +19,7 @@ export default function App() {
 
   useEffect(() => {
     const root = window.document.documentElement;
+
     if (darkMode) {
       root.classList.add("dark");
       localStorage.setItem("theme", "dark");
@@ -47,6 +50,8 @@ export default function App() {
             <Route path="/home" element={<Home />} />
             <Route path="/favorites" element={<Favorites />} />
             <Route path="/movie/:id" element={<MovieDetails />} />
+            <Route path="/signup" element={<Signup />} />
+            <Route path="/help" element={<HelpCenter />} />
           </Routes>
         </motion.main>
       </AnimatePresence>

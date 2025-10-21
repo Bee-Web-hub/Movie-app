@@ -1,98 +1,122 @@
-import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState } from "react";
+import { Link } from "react-router-dom";
+import HelpCenter from "./HelpCenter";
 
 export default function SignIn() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [isGuest, setIsGuest] = useState(false);
-  const navigate = useNavigate();
+  const [showPassword, setShowPassword] = useState(false);
+  const [form, setForm] = useState({ email: "", password: "" });
+  const [error, setError] = useState("");
+  const [openHelp, setOpenHelp] = useState(false);
+
+  const handleChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (email && password) {
-      localStorage.setItem("user", email);
-      setIsGuest(false);
-      navigate("/home");
-    } else {
-      alert("Please fill in both fields!");
-    }
-  };
+    setError("");
 
-  const handleBrowseAsGuest = () => {
-    localStorage.setItem("user", "Guest");
-    setIsGuest(true);
-    navigate("/home");
-  };
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!form.email || !form.password)
+      return setError("Please fill in all fields.");
+    if (!emailRegex.test(form.email))
+      return setError("Please enter a valid email address.");
+    if (form.password.length < 6)
+      return setError("Password must be at least 6 characters long.");
 
-  const handleSignOutGuest = () => {
-    localStorage.removeItem("user");
-    setIsGuest(false);
-    navigate("/signin");
+    alert("Signed in successfully (demo only)");
   };
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-gray-900 text-white">
-      <h1 className="text-4xl font-bold mb-6 text-yellow-400">🎬 MovieHub</h1>
+    <div className="relative min-h-screen bg-[url('https://images.unsplash.com/photo-1525186402429-b4ff38bedbec?auto=format&fit=crop&w=1800&q=60')] bg-cover bg-center text-white">
+      <div className="absolute inset-0 bg-black/70" />
 
-      <div className="bg-gray-800 p-8 rounded-2xl shadow-lg w-80">
-        {!isGuest ? (
-          <>
-            <h2 className="text-2xl font-semibold mb-4 text-center">
-              Sign In or Log In
-            </h2>
+      {/* Navbar */}
+      <header className="relative flex justify-between items-center px-8 py-6">
+        <div className="flex items-center gap-2">
+          <div className="w-24 h-7 bg-red-600 rounded-sm" />
+          <span className="font-bold text-2xl tracking-wide">Moviehub</span>
+        </div>
+        <button
+          onClick={() => setOpenHelp(true)}
+          className="text-gray-300 text-sm hover:underline"
+        >
+          Need Help?
+        </button>
+      </header>
 
-            <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+      {/* Center form */}
+      <main className="relative flex justify-center items-center px-4 pt-8 pb-16">
+        <form
+          onSubmit={handleSubmit}
+          className="bg-black/75 p-8 rounded-md w-full max-w-md backdrop-blur-md shadow-2xl"
+        >
+          <h1 className="text-3xl font-bold mb-6">Sign In</h1>
+
+          <div className="space-y-4">
+            <input
+              type="email"
+              name="email"
+              placeholder="Email"
+              className="w-full bg-[#333] text-white px-4 py-3 rounded-md focus:outline-none focus:ring-1 focus:ring-red-600"
+              value={form.email}
+              onChange={handleChange}
+            />
+
+            <div className="relative">
               <input
-                type="email"
-                placeholder="Enter your email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="p-2 rounded bg-gray-700 text-white focus:outline-none"
+                type={showPassword ? "text" : "password"}
+                name="password"
+                placeholder="Password"
+                className="w-full bg-[#333] text-white px-4 py-3 rounded-md focus:outline-none focus:ring-1 focus:ring-red-600"
+                value={form.password}
+                onChange={handleChange}
               />
-
-              <input
-                type="password"
-                placeholder="Enter your password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="p-2 rounded bg-gray-700 text-white focus:outline-none"
-              />
-
               <button
-                type="submit"
-                className="bg-yellow-500 text-black font-bold py-2 rounded hover:bg-yellow-400 transition"
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-gray-400"
               >
-                Continue
-              </button>
-            </form>
-
-            <div className="text-center mt-4">
-              <button
-                onClick={handleBrowseAsGuest}
-                className="bg-transparent border border-yellow-400 text-yellow-400 py-2 px-4 rounded hover:bg-yellow-500 hover:text-black transition"
-              >
-                Browse as Guest
+                {showPassword ? "Hide" : "Show"}
               </button>
             </div>
-          </>
-        ) : (
-          <div className="text-center">
-            <h2 className="text-2xl font-semibold mb-4">
-              Welcome, Guest 👋
-            </h2>
-            <p className="mb-4 text-gray-300">
-              You're currently browsing as a guest.  
-              Want to sign in for a full experience?
-            </p>
+
+            {error && <p className="text-red-400 text-sm mt-1">{error}</p>}
+
             <button
-              onClick={handleSignOutGuest}
-              className="bg-yellow-500 text-black font-bold py-2 px-4 rounded hover:bg-yellow-400 transition"
+              type="submit"
+              className="w-full bg-red-600 hover:bg-red-700 transition-colors font-semibold py-3 rounded-md mt-2"
             >
               Sign In
             </button>
           </div>
-        )}
-      </div>
+
+          <div className="flex justify-between items-center text-gray-400 text-sm mt-3">
+            <label className="flex items-center gap-2">
+              <input type="checkbox" className="accent-red-600" /> Remember me
+            </label>
+          </div>
+
+          <p className="text-gray-400 text-sm mt-6">
+            New to Moviehub?{" "}
+            <Link to="/signup" className="text-white hover:underline font-medium">
+              Create an account
+            </Link>
+            .
+          </p>
+
+<p className="text-gray-400 text-sm mt-3">
+  Just looking around?{" "}
+  <Link
+    to="/movies"
+    className="text-white hover:underline font-medium"
+  >
+    Browse as Guest
+  </Link>
+</p>
+        </form>
+      </main>
+
+      {/* Help Center Modal */}
+      {openHelp && <HelpCenter onClose={() => setOpenHelp(false)} />}
     </div>
   );
 }

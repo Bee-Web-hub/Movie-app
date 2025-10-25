@@ -15,7 +15,7 @@ export default function Home() {
   const [page, setPage] = useState(1);
   const [totalResults, setTotalResults] = useState(0);
 
-  const API_KEY = "dabce9ab";
+const API_KEY = import.meta.env.VITE_OMDB_API_KEY;
 
   useEffect(() => {
     fetchTrendingMovies();

@@ -1,21 +1,70 @@
+// movieapp/src/pages/Home.jsx
 import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import SearchBar from "../components/SearchBar";
-import MovieList from "../components/MovieList";
+import HorizontalMovieList from "../components/MovieList";
 
 export default function Home() {
   const [movies, setMovies] = useState([]);
+  const [trendingMovies, setTrendingMovies] = useState([]);
+  const [newMovies, setNewMovies] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const [searchTerm, setSearchTerm] = useState("Batman");
+  const [searchTerm, setSearchTerm] = useState("");
+  const [hasSearched, setHasSearched] = useState(false);
   const [page, setPage] = useState(1);
   const [totalResults, setTotalResults] = useState(0);
 
   const API_KEY = "dabce9ab";
 
   useEffect(() => {
-    fetchMovies(searchTerm, page);
-  }, [searchTerm, page]);
+    fetchTrendingMovies();
+    fetchNewMovies(1);
+  }, []);
+
+  // Fetch movies when page changes
+  useEffect(() => {
+    if (hasSearched) {
+      fetchMovies(searchTerm, page);
+    } else {
+      fetchNewMovies(page);
+    }
+  }, [page]);
+
+  const fetchTrendingMovies = async () => {
+    try {
+      const response = await fetch(
+        `https://www.omdbapi.com/?apikey=${API_KEY}&s=movie&y=2024&type=movie`
+      );
+      const data = await response.json();
+
+      if (data.Response === "True") {
+        setTrendingMovies(data.Search.slice(0, 10));
+      }
+    } catch (error) {
+      console.error("Error fetching trending movies:", error);
+    }
+  };
+
+  const fetchNewMovies = async (pageNum = 1) => {
+    try {
+      setLoading(true);
+      setError("");
+      const response = await fetch(
+        `https://www.omdbapi.com/?apikey=${API_KEY}&s=movie&type=movie&page=${pageNum}`
+      );
+      const data = await response.json();
+
+      if (data.Response === "True") {
+        setNewMovies(data.Search);
+        setTotalResults(parseInt(data.totalResults));
+      }
+    } catch (error) {
+      console.error("Error fetching new movies:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const fetchMovies = async (query, pageNum = 1) => {
     try {
@@ -40,9 +89,42 @@ export default function Home() {
     }
   };
 
+  const handleSearch = (term) => {
+    if (!term || !term.trim()) {
+      setSearchTerm("");
+      setHasSearched(false);
+      setPage(1);
+      setMovies([]);
+      fetchNewMovies(1);
+      return;
+    }
+
+    setSearchTerm(term);
+    setHasSearched(true);
+    setPage(1);
+    fetchMovies(term, 1);
+
+    setTimeout(() => {
+      window.scrollTo({
+        top: 600,
+        behavior: "smooth",
+      });
+    }, 100);
+  };
+
   const totalPages = Math.ceil(totalResults / 10);
-  const handleNext = () => page < totalPages && setPage(page + 1);
-  const handlePrev = () => page > 1 && setPage(page - 1);
+  const handleNext = () => {
+    if (page < totalPages) {
+      setPage(page + 1);
+      window.scrollTo({ top: 600, behavior: "smooth" });
+    }
+  };
+  const handlePrev = () => {
+    if (page > 1) {
+      setPage(page - 1);
+      window.scrollTo({ top: 600, behavior: "smooth" });
+    }
+  };
 
   return (
     <div className="pt-24 px-4 sm:px-8 pb-10 max-w-7xl mx-auto">
@@ -54,9 +136,9 @@ export default function Home() {
         className="text-center mb-12"
       >
         <h1 className="text-4xl sm:text-5xl font-extrabold text-yellow-400 mb-4">
-          Welcome to MovieHub 🍿
+          Welcome to MovieHub
         </h1>
-        <p className="text-gray-300 max-w-2xl mx-auto">
+        <p className="text-gray-400 max-w-2xl mx-auto">
           Stream, discover, and save your favorite movies — all in one place.
         </p>
       </motion.section>
@@ -68,12 +150,7 @@ export default function Home() {
         transition={{ duration: 0.6 }}
         className="max-w-xl mx-auto mb-10"
       >
-        <SearchBar
-          onSearch={(term) => {
-            setSearchTerm(term);
-            setPage(1);
-          }}
-        />
+        <SearchBar onSearch={handleSearch} />
       </motion.div>
 
       {loading && (
@@ -81,7 +158,27 @@ export default function Home() {
       )}
       {error && <p className="text-center text-red-500 mt-4">{error}</p>}
 
-      {!loading && !error && <MovieList movies={movies} />}
+      {!loading &&
+        !error &&
+        (movies.length > 0 || (!hasSearched && newMovies.length > 0)) && (
+          <>
+            {!hasSearched && trendingMovies.length > 0 && (
+              <HorizontalMovieList
+                title="Trending Now"
+                movies={trendingMovies}
+              />
+            )}
+
+            <HorizontalMovieList
+              title={
+                hasSearched
+                  ? `Search Results for "${searchTerm}"`
+                  : "New Releases"
+              }
+              movies={hasSearched ? movies : newMovies}
+            />
+          </>
+        )}
 
       {!loading && totalResults > 10 && (
         <div className="flex justify-center items-center gap-4 mt-8">
@@ -109,4 +206,3 @@ export default function Home() {
     </div>
   );
 }
-

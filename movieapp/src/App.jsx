@@ -29,8 +29,11 @@ export default function App() {
     }
   }, [darkMode]);
 
-  // Hide navbar on Sign In page
-  const hideNavbar = location.pathname === "/";
+  const hideNavbar =
+    location.pathname === "/" || location.pathname === "/signup";
+
+  const isFullScreenPage =
+    location.pathname === "/" || location.pathname === "/signup";
 
   return (
     <div className="min-h-screen bg-gray-100 dark:bg-gray-950 text-gray-900 dark:text-gray-100 transition-colors duration-500">
@@ -43,7 +46,7 @@ export default function App() {
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: -15 }}
           transition={{ duration: 0.4 }}
-          className="container mx-auto px-4 py-6"
+          className={isFullScreenPage ? "" : "container mx-auto px-4 py-6"}
         >
           <Routes>
             <Route path="/" element={<SignIn />} />

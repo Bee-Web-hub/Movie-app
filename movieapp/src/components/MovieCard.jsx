@@ -1,82 +1,101 @@
+// src/components/MovieCard.jsx
 import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
+import { Link } from "react-router-dom";
+import { Heart } from "lucide-react";
+import {
+  addToFavorites,
+  removeFromFavorites,
+  isFavorite,
+} from "../utils/favorites";
 
-// Local Storage helpers
-const getFavorites = () => {
-  const favs = localStorage.getItem("favorites");
-  return favs ? JSON.parse(favs) : [];
-};
-
-const saveFavorites = (favorites) => {
-  localStorage.setItem("favorites", JSON.stringify(favorites));
-};
-
-export default function MovieCard({ movie }) {
-  const [isFavorite, setIsFavorite] = useState(false);
+function MovieCard({ movie }) {
+  const [isFav, setIsFav] = useState(false);
+  const [showNotification, setShowNotification] = useState(false);
 
   useEffect(() => {
-    const favorites = getFavorites();
-    const isFav = favorites.some((fav) => fav.imdbID === movie.imdbID);
-    setIsFavorite(isFav);
-  }, [movie]);
+    setIsFav(isFavorite(movie.imdbID));
+  }, [movie.imdbID]);
 
-  const toggleFavorite = (e) => {
-    e.preventDefault();
-    const favorites = getFavorites();
-    let updatedFavorites;
+  const handleToggleFavorite = (e) => {
+    e.preventDefault(); // Prevent navigation when clicking the button
 
-    if (isFavorite) {
-      updatedFavorites = favorites.filter((fav) => fav.imdbID !== movie.imdbID);
+    if (isFav) {
+      removeFromFavorites(movie.imdbID);
+      setIsFav(false);
+      showMessage("Removed from favorites");
     } else {
-      updatedFavorites = [...favorites, movie];
+      addToFavorites(movie);
+      setIsFav(true);
+      showMessage("Added to favorites!");
     }
+  };
 
-    saveFavorites(updatedFavorites);
-    setIsFavorite(!isFavorite);
+  const showMessage = (message) => {
+    setShowNotification(message);
+    setTimeout(() => setShowNotification(false), 2000);
   };
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.4 }}
+      className="bg-gray-900 rounded-2xl shadow-lg overflow-hidden transform hover:scale-105 transition-transform duration-300 w-[180px] sm:w-[200px] md:w-[220px] relative"
+      whileHover={{ y: -5 }}
     >
-      <Link
-        to={`/movie/${movie.imdbID}`}
-        className="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden transform hover:scale-105 hover:shadow-yellow-100/40 transition duration-300 flex flex-col relative"
-      >
-        <div className="h-72 w-full bg-gray-200 flex items-center justify-center relative">
+      <Link to={`/movie/${movie.imdbID}`}>
+        <div className="relative">
           <img
-            src={movie.Poster !== "N/A" ? movie.Poster : "/placeholder.png"}
+            src={
+              movie.Poster !== "N/A"
+                ? movie.Poster
+                : "https://via.placeholder.com/300x450?text=No+Image"
+            }
             alt={movie.Title}
-            className="h-full w-full object-cover"
+            className="w-full h-[270px] object-cover"
           />
-
-          {/* Overlay gradient */}
-          <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent"></div>
 
           {/* Favorite Button */}
           <button
-            onClick={toggleFavorite}
-            className={`absolute top-3 right-3 text-2xl ${
-              isFavorite
-                ? "text-yellow-400 drop-shadow-lg"
-                : "text-gray-300 hover:text-yellow-400"
-            } transition`}
-            title={isFavorite ? "Remove from favorites" : "Add to favorites"}
+            onClick={handleToggleFavorite}
+            className={`absolute top-2 right-2 p-2 rounded-full backdrop-blur-md transition-all duration-300 z-10 ${
+              isFav
+                ? "bg-red-500 text-white scale-110"
+                : "bg-black/50 text-white hover:bg-black/70"
+            }`}
+            aria-label={isFav ? "Remove from favorites" : "Add to favorites"}
           >
-            {isFavorite ? "★" : "☆"}
+            <Heart
+              className={`w-4 h-4 sm:w-5 sm:h-5 transition-all ${
+                isFav ? "fill-current" : ""
+              }`}
+            />
           </button>
         </div>
-
-        <div className="p-4 flex-grow flex flex-col justify-between">
-          <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-100 truncate hover:text-yellow-500 transition">
-            {movie.Title}
-          </h3>
-          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">{movie.Year}</p>
-        </div>
       </Link>
+
+      <div className="p-3 text-center text-gray-200">
+        <h3 className="text-sm sm:text-base font-semibold truncate">
+          {movie.Title}
+        </h3>
+        <p className="text-xs sm:text-sm text-gray-400">{movie.Year}</p>
+
+        <div className="mt-2">
+          <Link
+            to={`/movie/${movie.imdbID}`}
+            className="inline-block bg-indigo-600 hover:bg-indigo-500 text-white text-xs sm:text-sm px-3 py-1 rounded-full transition-colors"
+          >
+            View Details
+          </Link>
+        </div>
+      </div>
+
+      {/* Notification Toast */}
+      {showNotification && (
+        <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 bg-black/90 text-white text-xs px-3 py-2 rounded-lg shadow-lg z-20 whitespace-nowrap animate-[fadeIn_0.3s_ease-out]">
+          {showNotification}
+        </div>
+      )}
     </motion.div>
   );
 }
+
+export default MovieCard;

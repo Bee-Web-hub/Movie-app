@@ -47,7 +47,7 @@ function MovieCard({ movie }) {
             src={
               movie.Poster !== "N/A"
                 ? movie.Poster
-                : "https://via.placeholder.com/300x450?text=No+Image"
+                : "https://via.placeholder.com/200x300?text=No+Image"
             }
             alt={movie.Title}
             className="w-full h-[270px] object-cover"
